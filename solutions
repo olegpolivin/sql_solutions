@@ -102,3 +102,25 @@ FROM PC
 GROUP BY hd
 HAVING COUNT(*) >= 2
 
+# 16
+SELECT DISTINCT A.model as model, B.model as model, A.speed, A.ram
+FROM PC as A, PC as B
+WHERE A.model > B.model AND A.speed = B.speed AND A.ram = B.ram
+ORDER BY A.model DESC, A.speed, A.ram
+
+# 17
+SELECT DISTINCT 'Laptop' as Type, model, speed
+FROM Laptop
+WHERE speed < ALL (SELECT speed FROM PC)
+
+# 18
+with query as
+(SELECT model, price
+FROM Printer
+WHERE price = (SELECT MIN(price)
+                           FROM Printer
+                           WHERE color='y') AND color='y')
+SELECT DISTINCT maker, price
+FROM Product JOIN query
+ON Product.model = query.model
+
