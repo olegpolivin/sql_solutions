@@ -29,6 +29,76 @@ Product JOIN Laptop
 ON Product.model = Laptop.model
 WHERE hd>=10
 
+# 7
+with t as (
+SELECT model, price FROM PC
+UNION
+SELECT model, price FROM Laptop
+UNION
+SELECT model, price FROM Printer),
 
+producer_b as (
+SELECT maker, model
+FROM Product
+WHERE maker = 'B')
 
+SELECT t.model, price FROM
+producer_b JOIN t
+ON producer_b.model = t.model
+
+# 8
+SELECT maker
+FROM Product
+WHERE type in ('PC', 'Laptop')
+EXCEPT
+SELECT maker
+FROM Product
+WHERE type = 'Laptop'
+
+# 9
+SELECT DISTINCT maker
+FROM Product
+JOIN
+(SELECT model
+FROM PC
+WHERE speed >= 450) Q
+ON Product.model = Q.model
+
+# 1O
+SELECT model, price 
+FROM Printer 
+WHERE price = 
+(SELECT MAX(price)
+FROM Printer)
+
+# 11
+SELECT AVG(speed) as Avg_speed
+FROM PC
+
+# 12
+SELECT AVG(speed) as Avg_speed
+FROM Laptop
+WHERE price > 1000
+
+# 13
+WITH T AS (
+SELECT maker, model
+FROM Product
+WHERE maker = 'A')
+
+SELECT AVG(speed)
+FROM PC JOIN T
+ON PC.model = T.model
+
+# 14
+SELECT Ships.class, Ships.name, country
+FROM Ships JOIN Classes
+ON Ships.class = Classes.class
+WHERE Classes.numGuns >= 10
+
+# 15
+SELECT hd
+FROM PC
+GROUP BY hd
+HAVING COUNT(*) >= 2
 
