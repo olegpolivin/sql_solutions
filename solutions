@@ -124,3 +124,71 @@ SELECT DISTINCT maker, price
 FROM Product JOIN query
 ON Product.model = query.model
 
+# 19
+SELECT maker, AVG(screen)
+FROM Product JOIN Laptop 
+ON Product.model = Laptop.model
+GROUP BY maker
+
+# 20
+SELECT maker, COUNT(*)
+FROM Product
+GROUP BY maker, type
+HAVING COUNT(*) >= 3 AND type = 'PC'
+
+# 21
+SELECT maker, MAX(Price) as Max_price
+FROM PC JOIN Product
+ON PC.model = Product.model
+GROUP BY Product.maker
+
+# 22
+SELECT speed, AVG(price)
+FROM PC
+GROUP BY speed
+HAVING speed > 600
+
+# 23
+SELECT maker
+FROM Product JOIN PC
+ON Product.model = PC.model
+WHERE PC.speed >= 750
+INTERSECT
+SELECT maker
+FROM Product JOIN Laptop
+ON Product.model = Laptop.model
+WHERE Laptop.speed >= 750
+
+# 24
+WITH Q AS (
+SELECT model, PC.price
+FROM PC
+UNION
+SELECT model, Laptop.price
+FROM Laptop
+UNION
+SELECT model, Printer.price
+FROM Printer
+)
+
+SELECT model
+FROM Q
+WHERE price = (SELECT MAX(price) FROM Q)
+
+# 25
+with MINRAM as (
+SELECT model, speed
+FROM PC
+WHERE ram = (SELECT MIN(ram) FROM PC)),
+
+MINRAMFAST as (
+SELECT model
+FROM MINRAM
+WHERE speed = (SELECT MAX(speed) FROM MINRAM))
+
+SELECT DISTINCT maker
+FROM Product
+WHERE type = 'Printer' and maker in ( SELECT maker
+FROM Product JOIN MINRAMFAST
+ON Product.model = MINRAMFAST.model)
+
