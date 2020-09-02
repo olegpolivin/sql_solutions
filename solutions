@@ -192,3 +192,54 @@ WHERE type = 'Printer' and maker in ( SELECT maker
 FROM Product JOIN MINRAMFAST
 ON Product.model = MINRAMFAST.model)
 
+# 26
+with PCLAP AS (
+SELECT model, price
+FROM PC
+UNION ALL
+SELECT model, price
+FROM Laptop)
+
+SELECT AVG(price) as AVG_price
+FROM Product JOIN PCLAP
+ON Product.model = PCLAP.model
+WHERE Product.maker = 'A'
+
+# 27
+with SUPERMAKER AS (
+SELECT DISTINCT maker
+FROM Product
+WHERE type = 'PC'
+INTERSECT
+SELECT maker
+FROM Product
+WHERE type = 'Printer'),
+
+PLAP AS (
+SELECT maker, hd
+FROM Product JOIN PC
+ON Product.model = PC.model)
+
+SELECT maker, AVG(hd) as Avg_hd
+FROM PLAP
+GROUP BY maker
+HAVING maker in (SELECT maker FROM SUPERMAKER)
+
+# 28
+SELECT COUNT(*) AS Qty
+FROM (SELECT maker
+FROM Product
+GROUP BY maker
+HAVING COUNT(*) = 1) A
+
+# 29
+SELECT Income_o.point, Income_o.date, inc, out
+FROM Income_o
+LEFT JOIN Outcome_o
+ON Income_o.date = Outcome_o.date AND income_o.point = outcome_o.point
+UNION
+SELECT Outcome_o.point, Outcome_o.date, inc, out
+FROM Outcome_o
+LEFT JOIN Income_o
+ON Income_o.date = Outcome_o.date AND income_o.point = outcome_o.point
+
