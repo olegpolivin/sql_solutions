@@ -300,3 +300,32 @@ SELECT country
 FROM Classes
 WHERE type='bc'
 
+# 39
+with Q as (
+SELECT name, date, ship, battle, result
+FROM Battles FULL JOIN Outcomes
+ON Battles.name = Outcomes.battle
+)
+
+SELECT DISTINCT B.ship FROM Q A, Q B
+WHERE A.result = 'damaged' AND A.ship = B.ship AND A.date < B.date
+
+# 40
+with T AS (
+SELECT maker, COUNT(type) AS C
+FROM (
+SELECT maker, type
+FROM Product
+WHERE maker in (
+SELECT maker
+FROM Product
+GROUP BY maker
+HAVING COUNT(model) > 1)
+GROUP BY maker, type) Q
+GROUP BY maker
+HAVING COUNT(*) = 1
+) 
+
+SELECT DISTINCT maker, type
+FROM Product
+WHERE maker in (SELECT maker FROM T)
