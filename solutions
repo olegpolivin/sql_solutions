@@ -243,3 +243,27 @@ FROM Outcome_o
 LEFT JOIN Income_o
 ON Income_o.date = Outcome_o.date AND income_o.point = outcome_o.point
 
+# 30
+with INC as (
+SELECT point, date, SUM(inc) as SINC
+FROM Income
+GROUP BY point, date),
+
+OUT as (
+SELECT point, date, SUM(out) as SOUT
+FROM Outcome
+GROUP BY point, date)
+
+SELECT INC.point, INC.date, SOUT as Outcome, SINC as Income
+FROM INC LEFT JOIN OUT
+ON INC.date = OUT.date AND INC.point = OUT.point
+UNION
+SELECT OUT.point, OUT.date, SOUT as Outcome, SINC as Income
+FROM OUT LEFT JOIN INC
+ON INC.date = OUT.date AND INC.point = OUT.point
+
+# 31
+SELECT class, country
+FROM Classes
+WHERE bore >= 16
+GROUP BY class, country
