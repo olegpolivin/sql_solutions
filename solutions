@@ -329,3 +329,8 @@ HAVING COUNT(*) = 1
 SELECT DISTINCT maker, type
 FROM Product
 WHERE maker in (SELECT maker FROM T)
+
+OR
+
+SELECT maker,max(type) type FROM [Product]
+group by maker having count(*)> 1 and max(type)=min(type)
