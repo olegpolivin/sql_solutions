@@ -267,3 +267,36 @@ SELECT class, country
 FROM Classes
 WHERE bore >= 16
 GROUP BY class, country
+
+# 33
+SELECT ship FROM Outcomes
+WHERE battle = 'North Atlantic' AND result = 'sunk'
+
+# 34 
+SELECT name FROM 
+Classes, Ships
+WHERE Classes.class = Ships.class AND type = 'bb' AND launched >= 1922 AND displacement > 35000
+
+# 35
+SELECT model, type
+from Product
+WHERE model NOT LIKE '%[^0-9]%' OR model NOT LIKE '%[^a-z]%'
+
+# 36
+SELECT name
+FROM Classes, Ships
+WHERE Classes.class = Ships.name
+UNION
+SELECT class
+FROM Classes, Outcomes
+WHERE Classes.class = Outcomes.ship
+
+# 38
+SELECT country
+FROM Classes
+WHERE type='bb'
+INTERSECT
+SELECT country
+FROM Classes
+WHERE type='bc'
+
