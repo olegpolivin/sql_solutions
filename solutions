@@ -366,3 +366,83 @@ THEN Null
 ELSE M.MP
 END Z
 FROM M
+
+# 42
+SELECT ship, battle
+FROM Outcomes
+WHERE result = 'sunk'
+
+# 43
+with Launched AS (
+SELECT DISTINCT launched
+FROM Ships
+WHERE Launched IS NOT Null)
+
+SELECT name
+FROM Battles
+WHERE YEAR(date) NOT IN (SELECT launched from Launched)
+
+# 44
+SELECT name 
+FROM
+(
+SELECT name
+FROM Ships
+UNION
+SELECT ship
+FROM Outcomes) Q
+WHERE name LIKE 'R%'
+
+# 45
+SELECT name 
+FROM (
+SELECT name
+FROM Ships
+UNION
+SELECT ship
+FROM Outcomes) Q1
+WHERE name LIKE '% % %'
+
+# 48
+with SUNK as (
+SELECT DISTINCT ship
+FROM Outcomes
+WHERE result = 'sunk')
+
+SELECT class
+FROM Ships
+WHERE name in (SELECT ship FROM SUNK)
+UNION
+SELECT class
+FROM Classes 
+WHERE class in (SELECT ship FROM SUNK);
+
+# 49
+SELECT name
+FROM (
+SELECT Classes.class, name
+FROM Classes JOIN Ships
+ON Classes.class = Ships.class
+WHERE bore = 16
+UNION
+SELECT Classes.class, ship
+FROM Classes JOIN Outcomes
+ON Classes.class = Outcomes.ship
+WHERE bore = 16) A
+
+# 50
+with S AS (
+SELECT Ships.name, Classes.class
+FROM Ships
+JOIN Classes
+ON Classes.class = Ships.class),
+
+S2 AS (
+SELECT name, class, battle
+FROM S LEFT JOIN Outcomes
+ON S.name = Outcomes.ship)
+
+SELECT DISTINCT Battles.name
+FROM Battles JOIN S2
+ON Battles.name = S2.battle
+WHERE S2.class = 'Kongo'
