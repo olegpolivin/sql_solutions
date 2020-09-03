@@ -334,3 +334,35 @@ OR
 
 SELECT maker,max(type) type FROM [Product]
 group by maker having count(*)> 1 and max(type)=min(type)
+
+# 41
+with Q as (
+SELECT maker, price
+FROM Product JOIN PC
+ON Product.model = PC.model
+UNION
+SELECT maker, price
+FROM Product JOIN Laptop
+ON Product.model = Laptop.model
+UNION
+SELECT maker, price
+FROM Product JOIN Printer
+ON Product.model = Printer.model
+),
+
+M as (
+SELECT maker, max(price) as MP
+FROM Q
+GROUP BY maker),
+
+N as (
+SELECT DISTINCT maker
+FROM Q
+WHERE price IS NULL)
+SELECT maker,
+CASE
+WHEN maker in (SELECT maker FROM N)
+THEN Null
+ELSE M.MP
+END Z
+FROM M
