@@ -484,3 +484,33 @@ SELECT CAST(AVG(1.00*numGuns) AS decimal(8,2)) as Avg_numGuns
 FROM Classes
 GROUP BY type
 HAVING type ='bb'
+
+# 65
+with Q1 AS (
+SELECT *, 
+CASE
+WHEN type = 'PC' THEN 1
+WHEN type = 'Laptop' THEN 2
+ELSE 3 END 
+Ordr
+FROM Product),
+
+Q2 AS (
+SELECT *, DENSE_RANK() OVER (ORDER BY maker, Ordr) AS num
+FROM Q1),
+
+Q3 AS (
+SELECT DISTINCT num, maker, type FROM Q2),
+
+Q4 AS (
+SELECT *, ROW_NUMBER() OVER (PARTITION BY maker ORDER BY num) as C
+FROM Q3
+)
+
+SELECT num, 
+CASE
+WHEN C > 1 THEN ''
+ELSE maker
+END maker, type
+FROM Q4
+
