@@ -446,3 +446,41 @@ SELECT DISTINCT Battles.name
 FROM Battles JOIN S2
 ON Battles.name = S2.battle
 WHERE S2.class = 'Kongo'
+
+# 51
+VERY LONG WAY
+with Q1 AS (
+SELECT Classes.class, numGuns, displacement, Outcomes.ship as name
+FROM Classes JOIN Outcomes
+ON Classes.class = Outcomes.ship),
+
+Q2 AS (
+SELECT Classes.class, numGuns, displacement, Ships.name
+FROM Classes JOIN Ships
+ON Classes.class = Ships.class),
+
+Q3 AS (
+SELECT * FROM Q1
+UNION
+SELECT * FROM Q2),
+
+Q4 AS (
+SELECT B.name, B.numGuns, B.displacement
+FROM Q3 A, Q3 B
+WHERE A.displacement = B.displacement),
+
+Q5 AS (
+SELECT max(numGuns) as MG, displacement as D
+FROM Q4
+GROUP BY displacement)
+
+SELECT DISTINCT name
+FROM Q4 LEFT JOIN Q5
+ON Q4.displacement = Q5.D
+WHERE numGuns = MG
+
+# 53
+SELECT CAST(AVG(1.00*numGuns) AS decimal(8,2)) as Avg_numGuns
+FROM Classes
+GROUP BY type
+HAVING type ='bb'
