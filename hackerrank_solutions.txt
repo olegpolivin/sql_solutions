@@ -148,3 +148,31 @@ SELECT SD, ED
 FROM Q, B
 WHERE Q.rn = B.rn
 ORDER BY DATEDIFF(day, SD, ED), SD
+
+# 10 https://www.hackerrank.com/challenges/the-report/problem
+WITH G AS (
+SELECT *, 
+CASE
+WHEN Marks <=9 THEN 1
+WHEN Marks >=10 AND Marks <=19 THEN 2
+WHEN Marks >=20 AND Marks <=29 THEN 3
+WHEN Marks >=30 AND Marks <=39 THEN 4
+WHEN Marks >=40 AND Marks <=49 THEN 5
+WHEN Marks >=50 AND Marks <=59 THEN 6
+WHEN Marks >=60 AND Marks <=69 THEN 7
+WHEN Marks >=70 AND Marks <=79 THEN 8
+WHEN Marks >=80 AND Marks <=89 THEN 9
+WHEN Marks >=90 AND Marks <=100 THEN 10
+ELSE NULL
+END Grade
+FROM Students
+)
+
+SELECT
+CASE
+WHEN Grade <= 7 THEN NULL
+ELSE Name
+END Name,
+Grade, Marks
+FROM G
+ORDER BY Grade DESC, Name, Marks Asc
