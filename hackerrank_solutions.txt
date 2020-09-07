@@ -1,4 +1,150 @@
-https://www.hackerrank.com/challenges/weather-observation-station-18/problem
+
+# 1 https://www.hackerrank.com/challenges/symmetric-pairs/problem
+(SELECT DISTINCT A.X, A.Y
+FROM Functions A, Functions B
+WHERE (A.X = B.Y AND A.Y = B.X) AND A.X < B.X
+)
+UNION
+(SELECT DISTINCT X, Y
+ FROM Functions
+ GROUP BY X, Y
+ HAVING COUNT(*) > 1)
+ ORDER BY X, Y
+
+# 2 https://www.hackerrank.com/challenges/revising-the-select-query/problem
+SELECT *
+FROM CITY
+WHERE population > 100000 AND COUNTRYCODE = 'USA'
+
+#3 https://www.hackerrank.com/challenges/weather-observation-station-18/problem
 SELECT ROUND((abs(MIN(LAT_N)-MAX(LAT_N)) + abs(MIN(LONG_W)-MAX(LONG_W))), 4)
 FROM Station
 
+#4 https://www.hackerrank.com/challenges/weather-observation-station-19/problem
+SELECT ROUND(SQRT(POW(MIN(LAT_N)-MAX(LAT_N), 2) + POW(MIN(LONG_W)-MAX(LONG_W), 2)), 4)
+FROM Station
+
+#5 https://www.hackerrank.com/challenges/weather-observation-station-20/problem
+with Augmented AS (
+    SELECT *, row_number() OVER(ORDER BY LAT_N) as rn
+    FROM Station),
+
+MEDIAN AS (
+    SELECT FLOOR(MAX(rn)/2) + 1 as med
+    FROM Augmented
+    )
+
+SELECT ROUND(LAT_N, 4)
+FROM Augmented
+WHERE rn = (SELECT med FROM MEDIAN)
+
+# 6 https://www.hackerrank.com/challenges/placements/problem
+with Q AS (
+SELECT Friends.ID, Friends.Friend_ID, Packages.Salary as LeftSalary
+FROM Friends JOIN Packages
+ON Friends.ID = Packages.ID),
+
+T AS (
+    SELECT Q.ID, Q.Friend_ID, Q.LeftSalary, Packages.Salary as RightSalary
+    FROM Q JOIN Packages
+    ON Q.Friend_ID = Packages.ID
+),
+
+B AS (
+    SELECT T.ID, T.RightSalary
+    FROM T
+    WHERE T.LeftSalary < T.RightSalary
+)
+
+SELECT name
+FROM B JOIN Students
+ON B.ID = Students.ID
+ORDER BY B.RightSalary
+
+# 7 https://www.hackerrank.com/challenges/binary-search-tree-1/problem
+with Leaf AS (
+SELECT DISTINCT N, 'Leaf' as T
+FROM BST
+WHERE N NOT IN (SELECT P FROM BST WHERE P IS NOT Null)),
+
+Root AS (
+SELECT N, 'Root' as T
+FROM BST
+WHERE P IS NULL),
+
+Inn AS (
+SELECT N, 'Inner' as T
+FROM BST WHERE N NOT IN ( (SELECT N FROM Leaf) UNION (SELECT P FROM Root)))
+
+(SELECT N, T
+FROM Leaf)
+UNION
+(SELECT N, T
+FROM Root)
+UNION
+(SELECT N, T
+FROM Inn)
+ORDER BY N
+
+# 8 https://www.hackerrank.com/challenges/the-company/problem
+with E AS (
+    SELECT DISTINCT company_code, employee_code, EC
+    FROM
+        (SELECT company_code, employee_code, COUNT(*) OVER(PARTITION BY company_code) EC
+        FROM Employee
+        GROUP BY company_code, employee_code) T1
+    ),
+
+M AS (
+    SELECT DISTINCT company_code, MC
+    FROM
+        (SELECT company_code, COUNT(*) OVER (PARTITION BY company_code) as MC
+        FROM Manager
+        GROUP BY company_code, manager_code) T2
+    ),
+
+SM AS (
+    SELECT DISTINCT company_code, SMC
+    FROM
+        (SELECT company_code, COUNT(*) OVER (PARTITION BY company_code) as SMC
+        FROM Senior_Manager
+        GROUP BY company_code, senior_manager_code) T3
+    ),
+
+LM AS (
+    SELECT DISTINCT company_code, LMC
+    FROM
+        (SELECT company_code, COUNT(*) OVER (PARTITION BY company_code) as LMC
+        FROM Lead_Manager
+        GROUP BY company_code, lead_manager_code) T4
+    ),
+
+AllT AS (
+    SELECT E.company_code, LMC, SMC, MC, EC
+    FROM E, LM, SM, M
+    WHERE (E.company_code = M.company_code) AND (E.company_code = SM.company_code) AND (E.company_code = LM.company_code))
+
+SELECT DISTINCT Company.company_code, founder, LMC, SMC, MC, EC
+FROM Company JOIN AllT
+ON Company.company_code = AllT.company_code
+ORDER BY Company.company_code
+
+# 9 https://www.hackerrank.com/challenges/sql-projects/problem
+WITH T AS (
+    SELECT Task_ID, Start_Date, End_Date, DATEDIFF(day, LAG(Start_Date, 1) OVER (ORDER BY Start_Date), Start_Date) as SDiff, DATEDIFF(day, End_Date, LEAD(End_Date, 1) OVER (ORDER BY End_Date)) as SDiff2
+FROM Projects),
+
+Q AS (
+    SELECT Start_Date AS SD, row_number() OVER(ORDER BY Start_Date) as rn, SDiff
+    FROM T WHERE SDiff > 1 OR SDiff IS NULL
+),
+
+B AS (
+    SELECT Task_ID, End_Date AS ED, row_number() OVER(ORDER BY End_Date) as rn, SDiff2
+    FROM T WHERE SDiff2 > 1 OR SDiff2 IS NULL
+)
+
+SELECT SD, ED
+FROM Q, B
+WHERE Q.rn = B.rn
+ORDER BY DATEDIFF(day, SD, ED), SD
