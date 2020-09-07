@@ -186,3 +186,27 @@ Grades.Grade, Students.Marks
 FROM Students JOIN Grades
 WHERE Students.Marks BETWEEN Grades.Min_Mark AND Grades.Max_Mark
 ORDER BY Grade DESC, Name, Marks
+
+# 11 https://www.hackerrank.com/challenges/harry-potter-and-wands/problem
+WITH Q AS (
+    SELECT Wands.id, Wands_Property.age, Wands.coins_needed, Wands.power, Wands.code
+    FROM Wands JOIN Wands_Property
+    ON Wands.code = Wands_Property.code
+    WHERE Wands_Property.is_evil = 0
+),
+
+MINPRICE AS (
+    SELECT power, age, MIN(coins_needed) minprice
+    FROM Q
+    GROUP BY power, age
+),
+
+BESTOFFER AS (
+    SELECT id, Q.age, Q.coins_needed, Q.power, Q.code
+    FROM Q JOIN MINPRICE
+    ON Q.power = MINPRICE.power AND Q.age = MINPRICE.age AND Q.coins_needed = MINPRICE.minprice
+)
+
+SELECT id, age, coins_needed, BESTOFFER.power
+FROM BESTOFFER
+ORDER BY BESTOFFER.power DESC, BESTOFFER.age DESC
